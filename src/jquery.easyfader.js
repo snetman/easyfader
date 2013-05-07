@@ -1,6 +1,6 @@
 /*
 * EASYFADER - An Ultralight Fading Slideshow For Responsive Layouts
-* Version: 1.0
+* Version: 1.1
 * License: Creative Commons Attribution 3.0 Unported - CC BY 3.0
 * http://creativecommons.org/licenses/by/3.0/
 * This software may be used freely on commercial and non-commercial projects with attribution to the author/copyright holder.
@@ -23,7 +23,9 @@
 			return this.each(function(){
 				var config = {
 					slideDur: 7000,
-					fadeDur: 800
+					fadeDur: 800,
+					onFadeStart: null,
+					onFadeEnd: null
 				};
 				if(settings){
 					$.extend(config, settings);
@@ -32,6 +34,7 @@
 				var $container = $(this),
 					slideSelector = '.slide',
 					fading = false,
+					firstLoad = true,
 					slideTimer,
 					activeSlide,
 					newSlide,
@@ -45,11 +48,17 @@
 						activeSlide = newNdx;
 						fading = false;
 						waitForNext();
+						if(typeof config.onfadeEnd == 'function'){
+							config.onFadeEnd.call(this, $slides.eq(activeSlide));
+						};
 					};
 					if(fading || activeNdx == newNdx){
 						return false;
 					};
 					fading = true;
+					if(typeof config.onFadeStart == 'function' && !firstLoad){
+						config.onFadeStart.call(this, $slides.eq(newSlide));
+					};
 					$pagers.removeClass('active').eq(newSlide).addClass('active');
 					$slides.eq(activeNdx).css('z-index', 3);
 					$slides.eq(newNdx).css({
@@ -88,6 +97,7 @@
 					animateSlides(activeSlide, newSlide);
 				};
 				function waitForNext(){
+					firstLoad = false;
 					slideTimer = setTimeout(function(){
 						changeSlides('next');
 					},config.slideDur);
@@ -102,14 +112,11 @@
 					changeSlides(target);
 				});
 				var $pagers = $pagerList.find('.page');
-				$slides.eq(0).css('opacity', 1);
-				$pagers.eq(0).addClass('active');
-				activeSlide = 0;
-				waitForNext();
+				animateSlides(null, 0);
 			});
 		}
 	};
-	$.fn.easyFader = function(arg){
-		return methods.init.apply(this, arg);
+	$.fn.easyFader = function(settings){
+		return methods.init.apply(this, arguments);
 	};
 })(jQuery);
