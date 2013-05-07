@@ -59,7 +59,7 @@
 					if(typeof config.onFadeStart == 'function' && !firstLoad){
 						config.onFadeStart.call(this, $slides.eq(newSlide));
 					};
-					$pagers.removeClass('active').eq(newSlide).addClass('active');
+					$pagers.removeClass('active').eq(newNdx).addClass('active');
 					$slides.eq(activeNdx).css('z-index', 3);
 					$slides.eq(newNdx).css({
 						'z-index': 2,
