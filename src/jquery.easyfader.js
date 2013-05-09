@@ -1,11 +1,11 @@
 /*
 * EASYFADER - An Ultralight Fading Slideshow For Responsive Layouts
-* Version: 1.2
+* Version: 1.3
 * License: Creative Commons Attribution 3.0 Unported - CC BY 3.0
 * http://creativecommons.org/licenses/by/3.0/
 * This software may be used freely on commercial and non-commercial projects with attribution to the author/copyright holder.
 * Author: Patrick Kunka
-* Copyright 2012-2013 Patrick Kunka, All Rights Reserved
+* Copyright 2013 Patrick Kunka, All Rights Reserved
 */
 
 (function($){
@@ -18,6 +18,19 @@
 		}; 
 		return "transition" in el.style ? "" : false;
 	};
+	$.fn.removeStyle = function(style){
+		return this.each(function(){
+			var obj = $(this);
+			style = style.replace(/\s+/g, '');
+			var styles = style.split(',');
+			$.each(styles,function(){
+				var search = new RegExp(this.toString() + '[^;]+;?', 'g');
+				obj.attr('style', function(i, style){
+					if(style) return style.replace(search, '');
+			    });
+			});
+		});
+    };
 	var methods = {
 		init: function(settings){
 			return this.each(function(){
@@ -44,7 +57,8 @@
 					prefix = prefix($container[0]);
 				function animateSlides(activeNdx, newNdx){
 					function cleanUp(){
-						$slides.eq(activeNdx).removeAttr('style');
+						$slides.eq(activeNdx).removeStyle('opacity, z-index');
+						$slides.eq(newNdx).removeStyle(prefix+'transition, transition');
 						activeSlide = newNdx;
 						fading = false;
 						waitForNext();
@@ -59,22 +73,19 @@
 					if(typeof config.onFadeStart == 'function' && !firstLoad){
 						config.onFadeStart.call(this, $slides.eq(newSlide));
 					};
-					$pagers.removeClass('active').eq(newNdx).addClass('active');
-					$slides.eq(activeNdx).css('z-index', 3);
-					$slides.eq(newNdx).css({
-						'z-index': 2,
-						'opacity': 1
-					});
+					$pagers.removeClass('active').eq(newSlide).addClass('active');
+					$slides.eq(activeNdx).css('z-index', 2);
+					$slides.eq(newNdx).css('z-index', 3);
 					if(!prefix){
-						$slides.eq(activeNdx).animate({'opacity': 0}, config.fadeDur,
+						$slides.eq(newNdx).animate({'opacity': 1}, config.fadeDur,
 						function(){
 							cleanUp();
 						});
 					} else {
 						var styles = {};
 						styles[prefix+'transition'] = 'opacity '+config.fadeDur+'ms';
-						styles['opacity'] = 0;
-						$slides.eq(activeNdx).css(styles);
+						styles['opacity'] = 1;
+						$slides.eq(newNdx).css(styles);
 						var fadeTimer = setTimeout(function(){
 							cleanUp();
 						},config.fadeDur);
@@ -112,6 +123,7 @@
 					changeSlides(target);
 				});
 				var $pagers = $pagerList.find('.page');
+				$pagers.eq(0).addClass('active');
 				animateSlides(1, 0);
 			});
 		}
