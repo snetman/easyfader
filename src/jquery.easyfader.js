@@ -62,7 +62,7 @@
 						activeSlide = newNdx;
 						fading = false;
 						waitForNext();
-						if(typeof config.onfadeEnd == 'function'){
+						if(typeof config.onFadeEnd == 'function'){
 							config.onFadeEnd.call(this, $slides.eq(activeSlide));
 						};
 					};
