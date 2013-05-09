@@ -54,7 +54,7 @@
 					$slides = $container.find(slideSelector),
 					totalSlides = $slides.length,
 					$pagerList = $container.find('.pager_list');
-					prefix = prefix($container[0]);
+					prefix = $.support.leadingWhitespace ? prefix($container[0]) : false;
 				function animateSlides(activeNdx, newNdx){
 					function cleanUp(){
 						$slides.eq(activeNdx).removeStyle('opacity, z-index');
